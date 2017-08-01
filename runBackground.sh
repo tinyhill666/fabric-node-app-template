@@ -18,5 +18,5 @@ function installNodeModules() {
 
 
 installNodeModules
-
+rm server.log
 PORT=4000 node app > server.log &
