@@ -152,7 +152,12 @@ function newRemotes(urls, forPeers, userOrg) {
 		}
 
 		if (!found) {
-			logger.error(util.format('Failed to find a peer matching the url %s', peerUrl));
+			if (forPeers) {
+					logger.error(util.format('Failed to find a peer matching the url %s', peerUrl));
+				} else {
+					logger.warn(util.format('ORG : %s Failed to find a peer matching the url %s', userOrg , peerUrl));				
+				}
+			
 		}
 	}
 
@@ -203,12 +208,10 @@ var getAdminUser = function(userOrg) {
 			} else {
 				let caClient = caClients[userOrg];
 				// need to enroll it with CA server
-				debugger;
 				return caClient.enroll({
 					enrollmentID: username,
 					enrollmentSecret: password
 				}).then((enrollment) => {
-					debugger;
 					logger.info('Successfully enrolled user \'' + username + '\'');
 					member = new User(username);
 					member.setCryptoSuite(client.getCryptoSuite());
@@ -234,18 +237,15 @@ var getRegisteredUsers = function(username, userOrg, isJson) {
 	return hfc.newDefaultKeyValueStore({
 		path: getKeyStoreForOrg(getOrgName(userOrg))
 	}).then((store) => {
-		debugger;
 		client.setStateStore(store);
 		// clearing the user context before switching
 		client._userContext = null;
 		return client.getUserContext(username, true).then((user) => {
-			debugger;
 			if (user && user.isEnrolled()) {
 				logger.info('Successfully loaded member from persistence');
 				return user;
 			} else {
 				let caClient = caClients[userOrg];
-				debugger;
 				return getAdminUser(userOrg).then(function(adminUserObj) {
 					member = adminUserObj;
 					return caClient.register({
