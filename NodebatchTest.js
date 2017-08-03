@@ -42,10 +42,9 @@ var peers = ["localhost:7051","localhost:8051"];
 var chaincodeName = "mycc";
 var channelName = "mychannel";
 var fcn = "move";
-var username = "Jim"
-var orgname = "org1"
+var username = "qiushaoxi"
+var orgname = "org2"
 
-helper.getRegisteredUsers(username, orgname, true);
 
 for (var i = 0; i < 10; i++) {
 	var args = ["a"+i,"b"+i,"10"];
