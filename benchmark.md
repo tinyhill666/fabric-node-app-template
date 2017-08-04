@@ -1,6 +1,6 @@
-#Fabric benchmark
+# Fabric benchmark
 
-##Environment
+## Environment
 
 Vmware Workstation 9.0
 ubuntu 16.04 LTS 64 bit
@@ -12,7 +12,7 @@ Fabric-SDK-Node
 node ./app/invoke-batch.js
 
 
-##1
+## 1
 
 BatchTimeout = 2s
 MaxMessageCount =10
