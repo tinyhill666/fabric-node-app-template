@@ -20,15 +20,15 @@ node ./app/invoke-batch.js
 
 ## 1
 
-BatchTimeout = 2s
+### BatchTimeout = 2s
 
-MaxMessageCount =10
+### MaxMessageCount =10
 
-1 orderer solo mode
+### 1 orderer solo mode
 
-4 peer 
+### 4 peer 
 
-send proposal to 1 of 4 peers randomly
+### send proposal to 1 of 4 peers randomly
 
 transaction	|	time
 
@@ -49,7 +49,7 @@ transaction	|	time
 500			|	37s watched by explorer, event not all received
 
 
-send all proposal to 1 peer 
+### send all proposal to 1 peer 
 
 transaction	|	time
 
@@ -81,16 +81,14 @@ transaction	|	time
 
 
 
-BatchTimeout = 2s
+### BatchTimeout = 2s
+### MaxMessageCount =50
 
-MaxMessageCount =50
-
-
-1 orderer solo mode
-4 peer 
+### 1 orderer solo mode
+### 4 peer 
 
 
-send all proposal to 1 peer 
+### send all proposal to 1 peer 
 
 transaction	|	time
 
@@ -106,7 +104,7 @@ transaction	|	time
 
 1000		|	59000ms watched by explorer, event not all received
 
-
+### conclusion
 time spend in waiting for endorsement
 
 bottleneck is cpu, usage 100% when send trasactions
