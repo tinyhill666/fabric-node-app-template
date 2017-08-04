@@ -16,7 +16,7 @@
 'use strict';
 var log4js = require('log4js');
 var logger = log4js.getLogger('Helper');
-logger.setLevel('DEBUG');
+logger.setLevel('INFO');
 
 var path = require('path');
 var util = require('util');
@@ -155,7 +155,7 @@ function newRemotes(urls, forPeers, userOrg) {
 			if (forPeers) {
 					logger.error(util.format('Failed to find a peer matching the url %s', peerUrl));
 				} else {
-					logger.warn(util.format('ORG : %s Failed to find a peer matching the url %s', userOrg , peerUrl));				
+					logger.debug(util.format('ORG : %s Failed to find a peer matching the url %s', userOrg , peerUrl));				
 				}
 			
 		}
@@ -335,9 +335,9 @@ var setupChaincodeDeploy = function() {
 };
 
 var getLogger = function(moduleName) {
-	var logger = log4js.getLogger(moduleName);
-	logger.setLevel('DEBUG');
-	return logger;
+	var newLogger = log4js.getLogger(moduleName);
+	newLogger.setLevel(logger.level);
+	return newLogger;
 };
 
 var getPeerAddressByName = function(org, peer) {

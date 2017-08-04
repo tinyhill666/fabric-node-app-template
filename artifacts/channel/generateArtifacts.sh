@@ -95,7 +95,7 @@ function generateChannelArtifacts() {
 	echo
 }
 
-generateCerts
-replacePrivateKey
+#generateCerts
+#replacePrivateKey
 generateChannelArtifacts
 

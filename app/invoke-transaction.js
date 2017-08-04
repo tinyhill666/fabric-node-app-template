@@ -91,7 +91,7 @@ var invokeChaincode = function(peersUrls, channelName, chaincodeName, fcn, args,
 					let handle = setTimeout(() => {
 						eh.disconnect();
 						reject();
-					}, 30000);
+					}, config.eventWaitTime );
 
 					eh.registerTxEvent(transactionID, (tx, code) => {
 						clearTimeout(handle);

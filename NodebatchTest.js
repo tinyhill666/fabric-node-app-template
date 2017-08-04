@@ -15,7 +15,7 @@
  */
 'use strict';
 var log4js = require('log4js');
-var logger = log4js.getLogger('SampleWebApp');
+var logger = log4js.getLogger('MyBatchTest');
 var express = require('express');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
@@ -33,26 +33,36 @@ var channels = require('./app/create-channel.js');
 var join = require('./app/join-channel.js');
 var install = require('./app/install-chaincode.js');
 var instantiate = require('./app/instantiate-chaincode.js');
-var invoke = require('./app/invoke-transaction.js');
+var invoke = require('./app/invoke-batch.js');
 var query = require('./app/query.js');
 var host = process.env.HOST || config.host;
 var port = process.env.PORT || config.port;
 
-var peers = ["localhost:7051","localhost:8051"];
+var peers = ["localhost:7051", "localhost:8051"];
 var chaincodeName = "mycc";
 var channelName = "mychannel";
 var fcn = "move";
-var username = "qiushaoxi"
-var orgname = "org2"
+var username = "SomeBodyB"
+var orgname = "org1"
+var INTERVAL = 3000
 
-
-for (var i = 0; i < 10; i++) {
-	var args = ["a"+i,"b"+i,"10"];
-	logger.info(args);
-	invoke.invokeChaincode(peers, channelName, chaincodeName, fcn, args, username, orgname)
-	.then(function(message) {
-		res.send(message);
-	});
+var oneRoundInvoke = function(roundNum, invokeTimes, endRound) {
+	var startTime = new Date();
+	logger.info("Round:" + roundNum + ",start time:" + startTime.toString());
+	var startNum = roundNum * invokeTimes;
+	for (var i = 0; i < invokeTimes; i++) {
+		var args = ["a" + (startNum + i), "b" + (startNum + i), "10"];
+		logger.info(args);
+		invoke.invokeChaincode(peers, channelName, chaincodeName, fcn, args, username, orgname)
+			.then(function(message) {
+				logger.info(message);
+				var endTime = new Date();
+				logger.info("invoke complete after:" + (endTime - startTime).toString() + "ms");
+			});
+	}
+	if (roundNum < endRound - 1) {
+		setTimeout(oneRoundInvoke, INTERVAL, roundNum + 1, invokeTimes, endRound);
+	}
 }
 
-
+oneRoundInvoke(0, 10, 10);
