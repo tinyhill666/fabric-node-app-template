@@ -108,3 +108,59 @@ transaction	|	time
 time spend in waiting for endorsement
 
 bottleneck is cpu, usage 100% when send trasactions
+
+
+## 2
+
+### BatchTimeout = 2s
+### MaxMessageCount =10
+
+### 1 orderer kafka mode
+3 zk 4 kafka
+### 4 peer 
+### send proposal to 1 of 4 peers randomly
+
+transaction	|	time
+
+10			|	1045ms
+
+50			|	5375ms
+
+100			|	14975ms
+
+200			|	18790ms watched by explorer, event not all received
+
+500			|	43470ms watched by explorer, event not all received
+
+### send all proposal to 1 peer 
+
+transaction	|	time
+
+50			|	8380ms watched by explorer, event not all received
+
+200			|	19130ms watched by explorer, event not all received
+
+500			|	43160ms watched by explorer, event not all received
+
+
+### BatchTimeout = 2s
+### MaxMessageCount =50
+
+### 1 orderer kafka mode
+3 zk 4 kafka
+### 4 peer 
+### send proposal to 1 of 4 peers randomly
+transaction	|	time
+
+50			|	5868ms
+
+200			|	19350ms  watched by explorer, event not all received
+
+500			|	39410ms  watched by explorer, event not all received
+
+1000		|	>60s and occurs a error
+
+### conclusion
+kafka not better in one machine situation
+
+need better hardware
