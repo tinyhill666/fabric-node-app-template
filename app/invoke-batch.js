@@ -44,7 +44,7 @@ var targets = helper.newPeers(peersUrls);
 var tx_id = null;
 
 var multiInvoke = function(user) {
-	oneRoundInvoke(user, 0, 200, 1);
+	oneRoundInvoke(user, 0, 10, 1);
 }
 
 
