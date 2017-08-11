@@ -5,8 +5,8 @@
    "channelName":"mychannel",
    "GOPATH":"../gopath",
    "keyValueStore":"/tmp/fabric-client-kvs",
-   "eventWaitTime":"60000",
-   "orderer":"grpcs://localhost:7050",
+   "eventWaitTime":"30000",
+   "enableTLS":true,
    "users":[
       {
          "username":"admin",

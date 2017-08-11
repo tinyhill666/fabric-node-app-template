@@ -28,7 +28,7 @@ var ORGS = hfc.getConfigSetting('network-config');
 var tx_id = null;
 var eh = null;
 
-var instantiateChaincode = function(channelName, chaincodeName, chaincodeVersion, functionName, args, username, org ,updataFlag) {
+var instantiateChaincode = function(channelName, chaincodeName, chaincodeVersion, functionName, args, username, org, updataFlag) {
 	logger.debug('\n============ Instantiate chaincode on organization ' + org +
 		' ============\n');
 
@@ -99,20 +99,26 @@ var instantiateChaincode = function(channelName, chaincodeName, chaincodeVersion
 			var deployId = tx_id.getTransactionID();
 
 			eh = client.newEventHub();
-			let data = fs.readFileSync(path.join(__dirname, ORGS[org]['peer1'][
-				'tls_cacerts'
-			]));
-			eh.setPeerAddr(ORGS[org]['peer1']['events'], {
-				pem: Buffer.from(data).toString(),
-				'ssl-target-name-override': ORGS[org]['peer1']['server-hostname']
-			});
+
+			if (config.enableTLS) {
+				let data = fs.readFileSync(path.join(__dirname, ORGS[org]['peer1'][
+					'tls_cacerts'
+				]));
+				eh.setPeerAddr(ORGS[org]['peer1']['events'], {
+					pem: Buffer.from(data).toString(),
+					'ssl-target-name-override': ORGS[org]['peer1']['server-hostname']
+				});
+			} else {
+				eh.setPeerAddr(ORGS[org]['peer1']['events']);
+			}
+			
 			eh.connect();
 
 			let txPromise = new Promise((resolve, reject) => {
 				let handle = setTimeout(() => {
 					eh.disconnect();
 					reject();
-				}, config.eventWaitTime );
+				}, config.eventWaitTime);
 
 				eh.registerTxEvent(deployId, (tx, code) => {
 					logger.info(

@@ -1,15 +1,12 @@
 'use strict';
-var path = require('path');
-var fs = require('fs');
 var util = require('util');
-var hfc = require('fabric-client');
-var Peer = require('fabric-client/lib/Peer.js');
 var config = require('../config.json');
 var helper = require('../app/helper.js');
-var logger = helper.getLogger('invoke-chaincode');
-var EventHub = require('fabric-client/lib/EventHub.js');
-hfc.addConfigFile(path.join(__dirname, 'network-config.json'));
-var ORGS = hfc.getConfigSetting('network-config');
+// 引入 events 模块
+var events = require('events');
+// 创建 eventEmitter 对象
+var emitter = new events.EventEmitter();
+var logger = helper.getLogger('invoke-child-process');
 
 
 var chaincodeName = "mycc";
@@ -22,15 +19,22 @@ var INTERVAL = 5000
 
 var client = helper.getClientForOrg(org);
 var channel = helper.getChannelForOrg(org);
-var tx_id = null;
+//var tx_id = null;
+var returnCount = 0;
+var sendCount = 0;
+var emitCount = 0;
+var table = {}; //存放流水号
+var timeoutTable = [];
 
 var cmdArgs = process.argv.splice(2);
 logger.info('所传递的参数是：', cmdArgs);
 
 
-var processNum = cmdArgs[0];
+//参数传入为string
+var processNum = parseInt(cmdArgs[0]);
 var peerUrl = cmdArgs[1];
-var times = cmdArgs[2];
+var times = parseInt(cmdArgs[2]);
+
 
 var callCCArgsNumBase = processNum * times;
 
@@ -38,6 +42,19 @@ var peersUrls = [];
 peersUrls.push(peerUrl);
 
 var targets = helper.newPeers(peersUrls);
+
+emitter.on("endorsement", function(message) {
+	if (typeof message == "string") {
+		timeoutTable.push(message);
+	}
+	if (++emitCount == times) {
+		if (timeoutTable.length > 0) {
+			setTimeout(function() {
+				logger.info("time out tx id :\n", timeoutTable);
+			}, 500);
+		}
+	}
+});
 
 var invoke = function(user) {
 	oneRoundInvoke(user, 0, times, 1);
@@ -63,10 +80,13 @@ var oneRoundInvoke = function(user, roundNum, invokeTimes, endRound) {
 			return 'Failed to send transaction due to error: ' + err.stack ? err.stack :
 				err;
 		}).then(function(message) {
-			logger.info(message);
 			var endTime = new Date();
-			logger.info("invoke complete after:" + (endTime - startTime).toString() + "ms");
-
+			var total = times + callCCArgsNumBase;
+			logger.info("return No.:", ++returnCount, "/", total, "send No.:", table[message],
+				"invoke complete after:", (endTime - startTime).toString(), "ms\n",
+				"tx_id:", message);
+			delete table[message];
+			logger.debug("not return transaction:", table);
 		})
 	}
 	if (roundNum < endRound - 1) {
@@ -77,7 +97,8 @@ var oneRoundInvoke = function(user, roundNum, invokeTimes, endRound) {
 
 
 var send = function(user, args) {
-	tx_id = client.newTransactionID();
+	var tx_id = client.newTransactionID();
+	table[tx_id.getTransactionID()] = ++sendCount;
 	logger.debug(util.format('Sending transaction "%j"', tx_id));
 	// send proposal to a random endorser
 	// send proposal to endorser
@@ -89,16 +110,29 @@ var send = function(user, args) {
 		chainId: channelName,
 		txId: tx_id
 	};
-	return channel.sendTransactionProposal(request);
+	//return channel.sendTransactionProposal(request);
+
+	let sendPromise = new Promise((resolve, reject) => {
+
+		channel.sendTransactionProposal(request).then((results) => {
+			resolve([results, tx_id]);
+		}, (err) => {
+			reject(err);
+		});
+
+	});
+
+	return sendPromise;
 }
 
 
 
 var collectEndorsment = function(results) {
-	logger.info("wait endorsement:" + (new Date()).toString());
-	var proposalResponses = results[0];
-	var proposal = results[1];
-	var header = results[2];
+	var sendResult = results[0];
+	var tx_id = results[1];
+	var proposalResponses = sendResult[0];
+	var proposal = sendResult[1];
+	var header = sendResult[2];
 	var all_good = true;
 	for (var i in proposalResponses) {
 		let one_good = false;
@@ -136,7 +170,7 @@ var collectEndorsment = function(results) {
 			let txPromise = new Promise((resolve, reject) => {
 				let handle = setTimeout(() => {
 					eh.disconnect();
-					reject();
+					reject(transactionID);
 				}, config.eventWaitTime);
 
 				eh.registerTxEvent(transactionID, (tx, code) => {
@@ -158,12 +192,19 @@ var collectEndorsment = function(results) {
 			});
 			eventPromises.push(txPromise);
 		};
+
 		var sendPromise = channel.sendTransaction(request);
 		return Promise.all([sendPromise].concat(eventPromises)).then((results) => {
 			logger.debug(' event promise all complete and testing complete');
-			return results[0]; // the first returned value is from the 'sendPromise' which is from the 'sendTransaction()' call
+			emitter.emit("endorsement");
+			var endorsmentResults = results[0]; // the first returned value is from the 'sendPromise' which is from the 'sendTransaction()' call
+			//results[0] contains {"status":status},and property txId for dispaly
+			endorsmentResults["txId"] = transactionID;
+			return endorsmentResults;
 		}).catch((err) => {
-			logger.error(
+			emitter.emit("endorsement", err);
+			logger.warn(err);
+			logger.warn(
 				'Failed to send transaction and get notifications within the timeout period.'
 			);
 			return 'Failed to send transaction and get notifications within the timeout period.';
@@ -179,10 +220,9 @@ var collectEndorsment = function(results) {
 
 
 var check = function(response) {
-	logger.info("wait orderer response:" + (new Date()).toString());
 	if (response.status === 'SUCCESS') {
 		logger.debug('Successfully sent transaction to the orderer.');
-		return tx_id.getTransactionID();
+		return response.txId;
 	} else {
 		logger.error('Failed to order the transaction. Error code: ' + response.status);
 		return 'Failed to order the transaction. Error code: ' + response.status;
@@ -194,3 +234,4 @@ helper.getRegisteredUsers(username, org).then(invoke, (err) => {
 	logger.error('Failed to enroll user \'' + username + '\'. ' + err);
 	throw new Error('Failed to enroll user \'' + username + '\'. ' + err);
 });
+

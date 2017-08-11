@@ -45,23 +45,15 @@ function restartNetwork() {
 	echo
 }
 
-function installNodeModules() {
+jq --version > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo "Please Install 'jq' https://stedolan.github.io/jq/ to execute this script"
 	echo
-	if [ -d node_modules ]; then
-		echo "============== node modules installed already ============="
-	else
-		echo "============== Installing node modules ============="
-		npm install
-	fi
-	echo
-}
+	exit 1
+fi
 
-export ENABLE_TLS=true
+export ENABLE_TLS=$(cat config.json | jq ".enableTLS" )
 
 echo ${ENABLE_TLS}
 
 restartNetwork
-
-#installNodeModules
-
-#PORT=4000 node app

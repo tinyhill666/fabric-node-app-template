@@ -60,7 +60,7 @@ var joinChannel = function(channelName, peers, username, org) {
 		logger.info(util.format('received member object for admin of the organization "%s": ', org));
 		tx_id = client.newTransactionID();
 		let request = {
-			txId : 	tx_id
+			txId: tx_id
 		};
 
 		return channel.getGenesisBlock(request);
@@ -75,14 +75,20 @@ var joinChannel = function(channelName, peers, username, org) {
 		for (let key in ORGS[org]) {
 			if (ORGS[org].hasOwnProperty(key)) {
 				if (key.indexOf('peer') === 0) {
-					let data = fs.readFileSync(path.join(__dirname, ORGS[org][key][
-						'tls_cacerts'
-					]));
 					let eh = client.newEventHub();
-					eh.setPeerAddr(ORGS[org][key].events, {
-						pem: Buffer.from(data).toString(),
-						'ssl-target-name-override': ORGS[org][key]['server-hostname']
-					});
+
+					if (config.enableTLS) {
+						let data = fs.readFileSync(path.join(__dirname, ORGS[org][key][
+							'tls_cacerts'
+						]));
+						eh.setPeerAddr(ORGS[org][key].events, {
+							pem: Buffer.from(data).toString(),
+							'ssl-target-name-override': ORGS[org][key]['server-hostname']
+						});
+					} else {
+						eh.setPeerAddr(ORGS[org][key].events);
+					}
+					
 					eh.connect();
 					eventhubs.push(eh);
 					allEventhubs.push(eh);
@@ -103,8 +109,7 @@ var joinChannel = function(channelName, peers, username, org) {
 						var channel_header = block.data.data[0].payload.header.channel_header;
 						if (channel_header.channel_id === channelName) {
 							resolve();
-						}
-						else {
+						} else {
 							reject();
 						}
 					}
