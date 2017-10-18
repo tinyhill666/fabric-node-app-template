@@ -2,7 +2,11 @@
 	"network-config": {
 		"orderer": {
 			"url": "grpc://localhost:7050",
-			"server-hostname": "orderer.example.com"
+			"server-hostname": "orderer.example.com",
+			"admin": {
+				"key": "../artifacts/channel/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp/keystore",
+				"cert": "../artifacts/channel/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp/signcerts"
+			}
 		},
 		"org1": {
 			"name": "peerOrg1",

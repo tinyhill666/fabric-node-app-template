@@ -3,7 +3,11 @@
 		"orderer": {
 			"url": "grpcs://localhost:7050",
 			"server-hostname": "orderer.example.com",
-			"tls_cacerts": "../artifacts/channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt"
+			"tls_cacerts": "../artifacts/channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt",
+			"admin": {
+				"key": "../artifacts/channel/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp/keystore",
+				"cert": "../artifacts/channel/crypto-config/ordererOrganizations/example.com/users/Admin@example.com/msp/signcerts"
+			}
 		},
 		"org1": {
 			"name": "peerOrg1",
