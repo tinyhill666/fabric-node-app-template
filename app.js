@@ -157,6 +157,27 @@ app.post('/channels', function(req, res) {
 		res.send(message);
 	});
 });
+// Update Channel
+app.post('/updateChannel', function(req, res) {
+	logger.info('<<<<<<<<<<<<<<<<< U P D A T E  C H A N N E L >>>>>>>>>>>>>>>>>');
+	var channelName = req.body.channelName;
+	var channelConfigPath = req.body.channelConfigPath;
+	logger.debug('Channel name : ' + channelName);
+	logger.debug('channelConfigPath : ' + channelConfigPath); //../artifacts/channel/config_update.pb
+	if (!channelName) {
+		res.json(getErrorMessage('\'channelName\''));
+		return;
+	}
+	if (!channelConfigPath) {
+		res.json(getErrorMessage('\'channelConfigPath\''));
+		return;
+	}
+
+	channels.updateChannel(channelName, channelConfigPath, req.username, req.orgname)
+		.then(function(message) {
+			res.send(message);
+		});
+});
 // Join Channel
 app.post('/channels/:channelName/peers', function(req, res) {
 	logger.info('<<<<<<<<<<<<<<<<< J O I N  C H A N N E L >>>>>>>>>>>>>>>>>');
