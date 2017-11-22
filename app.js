@@ -122,7 +122,6 @@ app.post('/users', function(req, res) {
 		username: username,
 		orgName: orgName
 	}, app.get('secret'));
-	debugger;
 	helper.getRegisteredUsers(username, orgName, true).then(function(response) {
 		if (response && typeof response !== 'string') {
 			response.token = token;

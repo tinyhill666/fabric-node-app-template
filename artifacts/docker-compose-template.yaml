@@ -58,6 +58,7 @@ services:
     ports:
       - 7050:7050
     volumes:
+        - ./mount/orderer:/var/hyperledger/production
         - ./channel:/etc/hyperledger/configtx
         - ./channel/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/:/etc/hyperledger/crypto/orderer
         - ./channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/:/etc/hyperledger/crypto/peerOrg1
@@ -76,6 +77,7 @@ services:
       - 7051:7051
       - 7053:7053
     volumes:
+        - ./mount/peer0:/var/hyperledger/production    
         - ./channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/:/etc/hyperledger/crypto/peer
     depends_on:
       - orderer.example.com
@@ -93,6 +95,7 @@ services:
       - 7056:7051
       - 7058:7053
     volumes:
+        - ./mount/peer1:/var/hyperledger/production
         - ./channel/crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/:/etc/hyperledger/crypto/peer
     depends_on:
       - orderer.example.com
@@ -110,6 +113,7 @@ services:
       - 8051:7051
       - 8053:7053
     volumes:
+        - ./mount/peer2:/var/hyperledger/production
         - ./channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/:/etc/hyperledger/crypto/peer
     depends_on:
       - orderer.example.com
@@ -127,6 +131,7 @@ services:
       - 8056:7051
       - 8058:7053
     volumes:
+        - ./mount/peer3:/var/hyperledger/production
         - ./channel/crypto-config/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/:/etc/hyperledger/crypto/peer
     depends_on:
       - orderer.example.com

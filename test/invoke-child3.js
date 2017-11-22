@@ -68,7 +68,6 @@ emitter.on("send", function(message) {
 			var endTime = new Date();
 			logger.info("All event received at peer:", peerUrl, "after:", (endTime - startTime).toString(), "ms\n");
 		}).catch((errs) => {
-			debugger;
 			logger.warn("tx_ids not received :\n", table, "\n", tableCount, "events not received in ", config.eventWaitTime, "ms at peer:", peerUrl);
 		});
 	}

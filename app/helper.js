@@ -27,6 +27,8 @@ var copService = require('fabric-ca-client');
 var config = require('../config.json');
 
 var hfc = require('fabric-client');
+hfc.setConfigSetting('request-timeout',120000);
+
 if (config.enableTLS) {
 	hfc.addConfigFile(path.join(__dirname, 'network-config-tls.json'));
 } else {
