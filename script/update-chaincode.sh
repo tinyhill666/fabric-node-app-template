@@ -46,9 +46,9 @@ curl -s -X POST \
   -H "content-type: application/json" \
   -d '{
 	"peers": ["localhost:7051","localhost:7056"],
-	"chaincodeName":"robotjobcc",
-	"chaincodePath":"github.com/robotjob_cc",
-	"chaincodeVersion":"v3"
+	"chaincodeName":"fp_test_cc",
+	"chaincodePath":"dg",
+	"chaincodeVersion":"v0"
 }'
 echo
 echo
@@ -62,9 +62,9 @@ curl -s -X POST \
   -H "content-type: application/json" \
   -d '{
 	"peers": ["localhost:8051","localhost:8056"],
-	"chaincodeName":"robotjobcc",
-	"chaincodePath":"github.com/robotjob_cc",
-	"chaincodeVersion":"v3"
+	"chaincodeName":"fp_test_cc",
+	"chaincodePath":"dg",
+	"chaincodeVersion":"v0"
 }'
 echo
 echo
@@ -76,11 +76,11 @@ curl -s -X POST \
   -H "authorization: Bearer $ORG1_TOKEN" \
   -H "content-type: application/json" \
   -d '{
-	"chaincodeName":"robotjobcc",
-	"chaincodeVersion":"v3",
+	"chaincodeName":"fp_test_cc",
+	"chaincodeVersion":"v0",
 	"functionName":"init",
 	"args":[],
-	"updateFlag":true
+	"updateFlag":false
 }'
 echo
 echo
